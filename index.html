@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triathlon Time Predictor</title>
+  <meta name="description" content="Predict your triathlon finish time from past race performances." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏊</text></svg>" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>🏊 🚴 🏃 Triathlon Time Predictor</h1>
+      <p class="tagline">Log your past races, then predict your finish time for any distance.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ============ PAST RACES ============ -->
+    <section class="card" id="past-section">
+      <div class="card-head">
+        <h2>1. Your past races</h2>
+        <span class="hint">Add at least one race with swim / bike / run splits.</span>
+      </div>
+
+      <form id="race-form" class="race-form" autocomplete="off">
+        <div class="field">
+          <label for="race-name">Race name / date</label>
+          <input type="text" id="race-name" placeholder="e.g. City Olympic 2025" />
+        </div>
+
+        <div class="field">
+          <label for="race-date">Date</label>
+          <input type="date" id="race-date" />
+        </div>
+
+        <div class="field">
+          <label for="preset">Distance</label>
+          <select id="preset">
+            <option value="sprint">Sprint (0.75 / 20 / 5 km)</option>
+            <option value="olympic" selected>Olympic (1.5 / 40 / 10 km)</option>
+            <option value="half">Half / 70.3 (1.9 / 90 / 21.1 km)</option>
+            <option value="full">Full / Ironman (3.8 / 180 / 42.2 km)</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+
+        <div class="custom-dist" id="custom-dist" hidden>
+          <div class="field">
+            <label for="d-swim">Swim (m)</label>
+            <input type="number" id="d-swim" min="0" step="10" placeholder="1500" />
+          </div>
+          <div class="field">
+            <label for="d-bike">Bike (km)</label>
+            <input type="number" id="d-bike" min="0" step="0.1" placeholder="40" />
+          </div>
+          <div class="field">
+            <label for="d-run">Run (km)</label>
+            <input type="number" id="d-run" min="0" step="0.1" placeholder="10" />
+          </div>
+        </div>
+
+        <div class="splits">
+          <div class="field">
+            <label for="t-swim">Swim time</label>
+            <input type="text" id="t-swim" class="time-input" placeholder="mm:ss" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="t-t1">T1 <span class="opt">(opt)</span></label>
+            <input type="text" id="t-t1" class="time-input" placeholder="mm:ss" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="t-bike">Bike time</label>
+            <input type="text" id="t-bike" class="time-input" placeholder="h:mm:ss" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="t-t2">T2 <span class="opt">(opt)</span></label>
+            <input type="text" id="t-t2" class="time-input" placeholder="mm:ss" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="t-run">Run time</label>
+            <input type="text" id="t-run" class="time-input" placeholder="h:mm:ss" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Add race</button>
+          <button type="button" class="btn ghost" id="load-sample">Load sample data</button>
+        </div>
+        <p class="error" id="form-error" role="alert"></p>
+      </form>
+
+      <div class="table-scroll">
+        <table id="race-table" class="race-table" hidden>
+          <thead>
+            <tr>
+              <th>Race</th><th>Distance</th><th>Swim</th><th>Bike</th><th>Run</th><th>Total</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="empty" id="empty-msg">No races logged yet.</p>
+    </section>
+
+    <!-- ============ PREDICT ============ -->
+    <section class="card" id="predict-section">
+      <div class="card-head">
+        <h2>2. Predict a race</h2>
+        <span class="hint">Pick the distance you want to predict.</span>
+      </div>
+
+      <div class="predict-controls">
+        <div class="field">
+          <label for="target-preset">Target distance</label>
+          <select id="target-preset">
+            <option value="sprint">Sprint (0.75 / 20 / 5 km)</option>
+            <option value="olympic">Olympic (1.5 / 40 / 10 km)</option>
+            <option value="half" selected>Half / 70.3 (1.9 / 90 / 21.1 km)</option>
+            <option value="full">Full / Ironman (3.8 / 180 / 42.2 km)</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div class="custom-dist" id="target-custom" hidden>
+          <div class="field">
+            <label for="td-swim">Swim (m)</label>
+            <input type="number" id="td-swim" min="0" step="10" placeholder="1900" />
+          </div>
+          <div class="field">
+            <label for="td-bike">Bike (km)</label>
+            <input type="number" id="td-bike" min="0" step="0.1" placeholder="90" />
+          </div>
+          <div class="field">
+            <label for="td-run">Run (km)</label>
+            <input type="number" id="td-run" min="0" step="0.1" placeholder="21.1" />
+          </div>
+        </div>
+        <button type="button" class="btn primary" id="predict-btn">Predict my time</button>
+      </div>
+
+      <div id="result" class="result" hidden></div>
+    </section>
+
+    <section class="card explain">
+      <h2>How the prediction works</h2>
+      <p>
+        Each discipline is projected independently using <strong>Riegel's endurance
+        formula</strong>: <code>T₂ = T₁ × (D₂ / D₁)<sup>k</sup></code>. The exponent
+        <code>k</code> is slightly above 1 (swim 1.02, bike 1.04, run 1.06) to
+        account for the natural slow‑down as distance grows.
+      </p>
+      <p>
+        Every past race is projected to your target distance, then the projections
+        are combined with a <strong>recency weighting</strong> (more recent races
+        count more; 12‑month half‑life). Transitions are averaged from your history.
+        More races → a more reliable prediction.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Data is stored only in your browser (localStorage). Estimates are for guidance, not guarantees. Train smart & race safe. 🏁</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
