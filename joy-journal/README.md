@@ -14,7 +14,11 @@ A small web app for recording the joyful actions and encounters of your day.
 
 The app opens Threads' official web intent (`https://www.threads.net/intent/post?text=…`) with your post already filled in. You tap **Post** in Threads (or the Threads app on mobile) to publish it. No login, API key or server is needed.
 
-## Run it
+## Live site
+
+https://ngmayching.github.io/hello-world/ (deployed by `.github/workflows/pages.yml` on every push to `master` that changes `joy-journal/`).
+
+## Run it locally
 
 It's a static site with no build step:
 
